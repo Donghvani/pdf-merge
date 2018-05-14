@@ -10,17 +10,25 @@ namespace pdfMerge
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Started pdf merger");
-            string pdfFileLocation = @"C:\Temp\bookpages\";
-            int numberOfPdfs = 671;           
 
+
+            //string pdfFileLocation = @"C:\Temp\bookpages\";
+            //int numberOfPdfs = 671;
+            //string outFile = @"C:\Temp\bookpages\merged\merge.pdf";
+            //Merge(pdfFileLocation, numberOfPdfs, outFile);
+        }
+
+        public static void Merge(string pdfFileLocation, int numberOfPdfs, string outFile)
+        {
+            Console.WriteLine("Started pdf merger");
+            
             List<string> pdfs = new List<string>();
             for (int docIndex = 0; docIndex < numberOfPdfs + 1; docIndex++)
             {
                 string fileName = $"{docIndex}.pdf";
                 pdfs.Add(pdfFileLocation + fileName);
             }
-            CombineMultiplePdFs(pdfs, @"C:\Temp\bookpages\merged\merge.pdf");
+            CombineMultiplePdFs(pdfs, outFile);
         }
 
         public static void CombineMultiplePdFs(List<string> fileNames, string outFile)
