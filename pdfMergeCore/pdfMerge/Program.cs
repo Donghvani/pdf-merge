@@ -10,20 +10,22 @@ namespace pdfMerge
     {
         static void Main(string[] args)
         {
+            //string sourcePdFpath = @"C:\TEMP\pdf\original\scan.pdf";
+            //string outputPdFpath = @"C:\TEMP\pdf\split\1.pdf";
+            //ExtractPages(sourcePdFpath, outputPdFpath, 1, 6);
 
-
-            //string pdfFileLocation = @"C:\Temp\bookpages\";
-            //int numberOfPdfs = 671;
-            //string outFile = @"C:\Temp\bookpages\merged\merge.pdf";
-            //Merge(pdfFileLocation, numberOfPdfs, outFile);
+            string pdfFileLocation = @"C:\TEMP\pdf\split\";
+            int numberOfPdfs = 2;
+            string outFile = @"C:\TEMP\pdf\split\merge.pdf";
+            Merge(pdfFileLocation, numberOfPdfs, outFile, false);
         }
 
-        public static void Merge(string pdfFileLocation, int numberOfPdfs, string outFile)
+        public static void Merge(string pdfFileLocation, int numberOfPdfs, string outFile, bool zeroIndex = true)
         {
             Console.WriteLine("Started pdf merger");
             
             List<string> pdfs = new List<string>();
-            for (int docIndex = 0; docIndex < numberOfPdfs + 1; docIndex++)
+            for (int docIndex = 0 + (zeroIndex ? 0: 1); docIndex < numberOfPdfs + 1; docIndex++)
             {
                 string fileName = $"{docIndex}.pdf";
                 pdfs.Add(pdfFileLocation + fileName);
@@ -55,10 +57,11 @@ namespace pdfMerge
                     writer.AddPage(page);
                 }
 
-                PRAcroForm form = reader.AcroForm;
+                PrAcroForm form = reader.AcroForm;
                 if (form != null)
                 {
-                    writer.CopyDocumentFields(reader);
+                    //writer.CopyDocumentFields(reader);
+                    writer.CopyAcroForm(reader);
                 }
 
                 reader.Close();
@@ -68,6 +71,23 @@ namespace pdfMerge
             // step 5: we close the document and writer
             writer.Close();
             document.Close();
+        }
+
+        private static void ExtractPages(string sourcePdFpath, string outputPdFpath, int startpage, int endpage)
+        {
+            var reader = new PdfReader(sourcePdFpath);
+            var sourceDocument = new Document(reader.GetPageSizeWithRotation(startpage));
+            var pdfCopyProvider = new PdfCopy(sourceDocument, new FileStream(outputPdFpath, FileMode.Create));
+
+            sourceDocument.Open();
+
+            for (int index = startpage; index <= endpage; index++)
+            {
+                var importedPage = pdfCopyProvider.GetImportedPage(reader, index);
+                pdfCopyProvider.AddPage(importedPage);
+            }
+            sourceDocument.Close();
+            reader.Close();
         }
     }
 }
