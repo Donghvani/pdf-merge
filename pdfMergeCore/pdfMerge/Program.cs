@@ -14,10 +14,25 @@ namespace pdfMerge
             //string outputPdFpath = @"C:\TEMP\pdf\split\1.pdf";
             //ExtractPages(sourcePdFpath, outputPdFpath, 1, 6);
 
+            MegreMyImages();
+        }
+
+        public static void MegreMyPdfs()
+        {
             string pdfFileLocation = @"C:\TEMP\pdf\split\";
             int numberOfPdfs = 2;
             string outFile = @"C:\TEMP\pdf\split\merge.pdf";
             Merge(pdfFileLocation, numberOfPdfs, outFile, false);
+        }
+
+        public static void MegreMyImages()
+        {
+            var pathToImages = "/Users/vitalidonghvani/Code/pdf-merge/pdfMergeCore/pdfMerge/bin/Debug/netcoreapp2.0/";
+            var imagesAB = new List<string> { pathToImages+ "a.JPG", pathToImages + "b.JPG" };
+            CombineMultipleImagesIntoPdf(imagesAB, "ab.pdf");
+
+            var imageC = new List<string> { pathToImages + "c.JPG"};
+            CombineMultipleImagesIntoPdf(imageC, "c.pdf");
         }
 
         public static void Merge(string pdfFileLocation, int numberOfPdfs, string outFile, bool zeroIndex = true)
@@ -31,6 +46,44 @@ namespace pdfMerge
                 pdfs.Add(pdfFileLocation + fileName);
             }
             CombineMultiplePdFs(pdfs, outFile);
+        }
+
+        public static void CombineMultipleImagesIntoPdf(List<string> imagefiles, string outFile)
+        {
+            if (File.Exists(outFile))
+            {
+                File.Delete(outFile);
+            }
+            // step 1: creation of a document-object
+            Document document = new Document();
+            document.SetMargins(0, 0, 0, 0);
+
+            // step 2: we create a writer that listens to the document
+            FileStream fs = new FileStream(outFile, FileMode.Create);
+            PdfWriter writer = PdfWriter.GetInstance(document, fs);
+
+            // step 3: we open the document
+            document.Open();
+
+            //step 4: we add images
+            foreach (string fileName in imagefiles)
+            {
+                //document.Add(new Paragraph("Hello World!"));
+                //document.NewPage();
+                Image jpg = Image.GetInstance(fileName);
+                jpg.RotationDegrees = -90;
+                // x 
+                //jpg.ScaleToFit(842f, 595f);
+                jpg.ScaleToFit(800f, 840f);
+                //jpg.ScaleToFit(140f, 120f);
+                document.Add(jpg);
+                Console.WriteLine("added file: " + fileName);
+            }
+
+            // step 5: we close the document and writer
+            document.Close();
+            writer.Close();            
+            fs.Close();
         }
 
         public static void CombineMultiplePdFs(List<string> fileNames, string outFile)
